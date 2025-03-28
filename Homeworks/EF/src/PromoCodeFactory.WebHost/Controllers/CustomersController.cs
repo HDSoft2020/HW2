@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PromoCodeFactory.Core.Abstractions.Repositories;
 using PromoCodeFactory.WebHost.Models;
 using System;
 using System.Threading.Tasks;
@@ -10,14 +11,27 @@ namespace PromoCodeFactory.WebHost.Controllers
     /// </summary>
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class CustomersController
-        : ControllerBase
+    public class CustomersController: ControllerBase
     {
-        [HttpGet]
-        public Task<ActionResult<CustomerShortResponse>> GetCustomersAsync()
+        private readonly ICustomerRepository _customerRepository;
+        public CustomersController(ICustomerRepository customerRepository)
         {
-            //TODO: Добавить получение списка клиентов
-            throw new NotImplementedException();
+            _customerRepository = customerRepository;
+        }
+
+
+        [HttpGet]
+        public async Task<ActionResult<CustomerShortResponse>> GetCustomersAsync()
+        {
+            try
+            {
+                var customers = await _customerRepository.GetCustomerList();
+                return Ok(customers); 
+            }
+            catch (Exception exp)
+            {
+                return BadRequest();
+            }
         }
 
         [HttpGet("{id}")]
@@ -35,10 +49,18 @@ namespace PromoCodeFactory.WebHost.Controllers
         }
 
         [HttpPut("{id}")]
-        public Task<IActionResult> EditCustomersAsync(Guid id, CreateOrEditCustomerRequest request)
+        public async Task<IActionResult> EditCustomersAsync(Guid id, CreateOrEditCustomerRequest request)
         {
             //TODO: Обновить данные клиента вместе с его предпочтениями
-            throw new NotImplementedException();
+            try
+            {
+                //var s=await _customerRepository.UpateCustomer(request);
+                return Ok();
+            }
+            catch (Exception exp)
+            {
+                return BadRequest();
+            }
         }
 
         [HttpDelete]

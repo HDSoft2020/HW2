@@ -15,18 +15,18 @@ namespace PromoCodeFactory.WebHost.Controllers
     [Route("api/v1/[controller]")]
     public class RolesController
     {
-        private readonly IRepository<Role> _rolesRepository;
+        //private readonly IRepository<Role> _rolesRepository;
 
-        public RolesController(IRepository<Role> rolesRepository)
+        public RolesController()
         {
-            _rolesRepository = rolesRepository;
+            //_rolesRepository = rolesRepository;
         }
 
         /// <summary>
         /// Получить все доступные роли сотрудников
         /// </summary>
         /// <returns></returns>
-        [HttpGet]
+        /*[HttpGet]
         public async Task<IEnumerable<RoleItemResponse>> GetRolesAsync()
         {
             var roles = await _rolesRepository.GetAllAsync();
@@ -40,6 +40,6 @@ namespace PromoCodeFactory.WebHost.Controllers
                 }).ToList();
 
             return rolesModelList;
-        }
+        }*/
     }
 }

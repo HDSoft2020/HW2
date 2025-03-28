@@ -7,6 +7,7 @@ namespace PromoCodeFactory.Core.Domain.Administration
     public class Employee
         : BaseEntity
     {
+        public Guid Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
 

@@ -7,7 +7,7 @@ using PromoCodeFactory.Core.Domain;
 
 namespace PromoCodeFactory.DataAccess.Repositories
 {
-    public class InMemoryRepository<T>
+   /* public class InMemoryRepository<T>
         : IRepository<T>
         where T : BaseEntity
     {
@@ -27,5 +27,5 @@ namespace PromoCodeFactory.DataAccess.Repositories
         {
             return Task.FromResult(Data.FirstOrDefault(x => x.Id == id));
         }
-    }
+    }*/
 }

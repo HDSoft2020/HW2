@@ -17,11 +17,11 @@ namespace PromoCodeFactory.WebHost.Controllers
     public class EmployeesController
         : ControllerBase
     {
-        private readonly IRepository<Employee> _employeeRepository;
+        //private readonly IRepository<Employee> _employeeRepository;
 
-        public EmployeesController(IRepository<Employee> employeeRepository)
+        public EmployeesController()
         {
-            _employeeRepository = employeeRepository;
+            //_employeeRepository = employeeRepository;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpGet]
         public async Task<List<EmployeeShortResponse>> GetEmployeesAsync()
         {
-            var employees = await _employeeRepository.GetAllAsync();
+            /*var employees = await _employeeRepository.GetAllAsync();
 
             var employeesModelList = employees.Select(x =>
                 new EmployeeShortResponse()
@@ -41,7 +41,8 @@ namespace PromoCodeFactory.WebHost.Controllers
                     FullName = x.FullName,
                 }).ToList();
 
-            return employeesModelList;
+            return employeesModelList;*/
+            return new List<EmployeeShortResponse> { new EmployeeShortResponse() };
         }
 
         /// <summary>
@@ -51,7 +52,7 @@ namespace PromoCodeFactory.WebHost.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<EmployeeResponse>> GetEmployeeByIdAsync(Guid id)
         {
-            var employee = await _employeeRepository.GetByIdAsync(id);
+            /*var employee = await _employeeRepository.GetByIdAsync(id);
 
             if (employee == null)
                 return NotFound();
@@ -69,7 +70,8 @@ namespace PromoCodeFactory.WebHost.Controllers
                 AppliedPromocodesCount = employee.AppliedPromocodesCount
             };
 
-            return employeeModel;
+            return employeeModel;*/
+            return Ok(new EmployeeResponse());
         }
     }
 }

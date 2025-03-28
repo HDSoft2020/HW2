@@ -78,7 +78,7 @@ namespace PromoCodeFactory.WebHost.Controllers
         public async Task<ActionResult<EmployeeResponse>> Create([FromBody] Employee employee)
         {        
             if (employee == null)
-                return NotFound();
+                return BadRequest();
 
             await _employeeRepository.Add(employee);
             return Ok();
