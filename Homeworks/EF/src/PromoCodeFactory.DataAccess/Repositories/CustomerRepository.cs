@@ -14,84 +14,86 @@ namespace PromoCodeFactory.DataAccess.Repositories
 {
     public class CustomerRepository : EfRepository<Customer, Guid>, ICustomerRepository
     {
-
+        private readonly DatabaseContext _context;
         public CustomerRepository(DatabaseContext _db) : base(_db)
         {
-
+            _context = _db;
         }
         //
         //Get
         //
-        public Task<Customer> GetCustomer(Guid id)
-        {
-            return Task.FromResult<Customer>(Get(id));
-        }
         public async Task<Customer> GetCustomerAsync(Guid id)
         {
-            return await GetAsync(id, CancellationToken.None);
-        }
+            var customer = await _context.T_Customers
+               .AsNoTracking()
+               .Include(u => u.PromoCodes)
+               .Include(u => u.Preferences)
+               .FirstOrDefaultAsync(u => u.Id == id);
 
+            return customer;
+        }
         //
         //GetList
         //
-        public Task<List<Customer>> GetCustomerList()
+        public async Task<List<Customer>> GetCustomerListAsync()
         {
-            return Task.FromResult(GetAll(true).ToList());
-        }
+            var customers = await _context.T_Customers
+               .AsNoTracking()
+               .Include(u => u.PromoCodes)
+               .Include(u => u.Preferences)
+               .ToListAsync();
 
-        public async Task<List<Customer>> GetCustomertListAsync()
-        {
-            return await GetAllAsync(CancellationToken.None, true);
+            return customers;
         }
-
         //
         //Add
         //
-        public Task AddCustomer(Customer customer)
-        {
-            Add(customer);
-            return Task.CompletedTask;
-        }
-
         public async Task AddCustomerAsync(Customer customer)
         {
             await AddAsync(customer);
+            await _context.SaveChangesAsync();
         }
-
         //
         //Update
         //
-        public Task UpateCustomer(Customer customer)
-        {
-            Update(customer);
-            return Task.CompletedTask;
-        }
-
         public async Task UpateCustomerAsync(Customer customer)
         {
-            await UpdateAsync(customer);
+            var find = await _context.T_Customers.FirstOrDefaultAsync(u=>u.Id==customer.Id);
+            if (find == null)
+            {
+                throw new Exception($"Клиент с идентфикатором {customer.Id} не найден");
+            }
+            find.LastName = customer.LastName;
+            find.FirstName = customer.FirstName;
+            find.Email = customer.Email;
+            await UpdateAsync(find);
+
+            await _context.SaveChangesAsync();
         }
-
-
         //
         //Delete
         //
-        public Task DeleteCustomer(Guid id)
-        {
-            Delete(id);
-            return Task.CompletedTask;
-        }
-
         public async Task DeleteCustomerAsync(Guid id)
         {
-            await DeleteAsync(id);
+            using (var transaction = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var promocodes = await _context.T_PromoCodes.Where(u => u.CustomerId == id).ToListAsync();
+                    _context.T_PromoCodes.RemoveRange(promocodes);
+                    var preferences = await _context.T_Customer_Preferences.Where(u => u.CustomerId == id).ToListAsync();
+                    _context.T_Customer_Preferences.RemoveRange(preferences);
+                    var customer = await _context.T_Customers.FirstOrDefaultAsync(u => u.Id == id);
+                    _context.T_Customers.Remove(customer);
+                    await _context.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception exp)
+                {
+                    transaction.Rollback();
+                }
+
+            }
         }
-
-
-
-
-
-
-        
     }
 }

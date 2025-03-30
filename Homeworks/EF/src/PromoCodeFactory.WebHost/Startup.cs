@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +9,7 @@ using PromoCodeFactory.Core.Domain.Administration;
 using PromoCodeFactory.Core.Domain.PromoCodeManagement;
 using PromoCodeFactory.DataAccess.Data;
 using PromoCodeFactory.DataAccess.Repositories;
+using PromoCodeFactory.WebHost.Mapping;
 
 namespace PromoCodeFactory.WebHost
 {
@@ -22,6 +24,7 @@ namespace PromoCodeFactory.WebHost
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            InstallAutomapper(services);
             services.AddServices(Configuration);
             services.AddControllers();
 
@@ -73,6 +76,21 @@ namespace PromoCodeFactory.WebHost
             {
                 endpoints.MapControllers();
             });
+        }
+        private static IServiceCollection InstallAutomapper(IServiceCollection services)
+        {
+            services.AddSingleton<IMapper>(new Mapper(GetMapperConfiguration()));
+            return services;
+        }
+
+        private static MapperConfiguration GetMapperConfiguration()
+        {
+            var configuration = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<CustomerMappingProfile>();
+            });
+            configuration.AssertConfigurationIsValid();
+            return configuration;
         }
     }
 }

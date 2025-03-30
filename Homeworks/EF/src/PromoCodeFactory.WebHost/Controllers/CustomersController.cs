@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using PromoCodeFactory.Core.Abstractions.Repositories;
+using PromoCodeFactory.Core.Domain.PromoCodeManagement;
 using PromoCodeFactory.WebHost.Models;
 using System;
 using System.Threading.Tasks;
@@ -14,18 +16,22 @@ namespace PromoCodeFactory.WebHost.Controllers
     public class CustomersController: ControllerBase
     {
         private readonly ICustomerRepository _customerRepository;
-        public CustomersController(ICustomerRepository customerRepository)
+        private readonly IMapper _mapper;
+        public CustomersController(ICustomerRepository customerRepository, IMapper mapper)
         {
             _customerRepository = customerRepository;
+            _mapper=mapper;
         }
-
+        /// <summary>
+        /// Получить список всех клиентов
+        /// </summary>
 
         [HttpGet]
         public async Task<ActionResult<CustomerShortResponse>> GetCustomersAsync()
         {
             try
             {
-                var customers = await _customerRepository.GetCustomerList();
+                var customers = await _customerRepository.GetCustomerListAsync();
                 return Ok(customers); 
             }
             catch (Exception exp)
@@ -33,28 +39,33 @@ namespace PromoCodeFactory.WebHost.Controllers
                 return BadRequest();
             }
         }
-
+        /// <summary>
+        /// Получить клиента по идентификатору
+        /// </summary>
         [HttpGet("{id}")]
-        public Task<ActionResult<CustomerResponse>> GetCustomerAsync(Guid id)
+        public async Task<ActionResult<CustomerResponse>> GetCustomerAsync(Guid id)
         {
-            //TODO: Добавить получение клиента вместе с выданными ему промомкодами
-            throw new NotImplementedException();
-        }
-
-        [HttpPost]
-        public Task<IActionResult> CreateCustomerAsync(CreateOrEditCustomerRequest request)
-        {
-            //TODO: Добавить создание нового клиента вместе с его предпочтениями
-            throw new NotImplementedException();
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> EditCustomersAsync(Guid id, CreateOrEditCustomerRequest request)
-        {
-            //TODO: Обновить данные клиента вместе с его предпочтениями
             try
             {
-                //var s=await _customerRepository.UpateCustomer(request);
+                var customer = await _customerRepository.GetCustomerAsync(id);
+                return Ok(customer);
+            }
+            catch (Exception exp)
+            {
+                return BadRequest();
+            }
+        }
+        /// <summary>
+        /// Добавить клиента
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> CreateCustomerAsync(CreateOrEditCustomerRequest request)
+        {
+            //TODO: Добавить создание нового клиента вместе с его предпочтениями
+            try
+            {
+                Customer customer = _mapper.Map<Customer>(request);
+                await _customerRepository.AddCustomerAsync(customer);
                 return Ok();
             }
             catch (Exception exp)
@@ -62,12 +73,39 @@ namespace PromoCodeFactory.WebHost.Controllers
                 return BadRequest();
             }
         }
-
-        [HttpDelete]
-        public Task<IActionResult> DeleteCustomer(Guid id)
+        /// <summary>
+        /// Изменить клиента
+        /// </summary>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditCustomersAsync(Guid id, CreateOrEditCustomerRequest request)
         {
-            //TODO: Удаление клиента вместе с выданными ему промокодами
-            throw new NotImplementedException();
+            //TODO: Обновить данные клиента вместе с его предпочтениями
+            try
+            {
+                Customer customer = _mapper.Map<Customer>(request);
+                await _customerRepository.UpateCustomerAsync(customer);
+                return Ok();
+            }
+            catch (Exception exp)
+            {
+                return BadRequest();
+            }
+        }
+        /// <summary>
+        /// Удалить клиента
+        /// </summary>
+        [HttpDelete]
+        public async Task<IActionResult> DeleteCustomerAsync(Guid id)
+        {
+            try
+            {
+                await _customerRepository.DeleteCustomerAsync(id);
+                return Ok();
+            }
+            catch (Exception exp)
+            {
+                return BadRequest();
+            }
         }
     }
 }
