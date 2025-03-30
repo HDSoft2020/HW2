@@ -51,6 +51,11 @@ namespace PromoCodeFactory.DataAccess.Repositories
         public async Task AddCustomerAsync(Customer customer)
         {
             await AddAsync(customer);
+            foreach (var item in customer.Preferences)
+            {
+                item.CustomerId = customer.Id;
+                await _context.T_Customer_Preferences.AddAsync(item);
+            }
             await _context.SaveChangesAsync();
         }
         //
@@ -67,7 +72,13 @@ namespace PromoCodeFactory.DataAccess.Repositories
             find.FirstName = customer.FirstName;
             find.Email = customer.Email;
             await UpdateAsync(find);
-
+            var preferences = await _context.T_Customer_Preferences.Where(u => u.CustomerId == customer.Id).ToListAsync();
+            _context.T_Customer_Preferences.RemoveRange(preferences);
+            foreach (var item in customer.Preferences)
+            {
+                item.CustomerId = find.Id;
+                await _context.T_Customer_Preferences.AddAsync(item);
+            }
             await _context.SaveChangesAsync();
         }
         //

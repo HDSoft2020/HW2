@@ -4,6 +4,7 @@ using PromoCodeFactory.Core.Abstractions.Repositories;
 using PromoCodeFactory.Core.Domain.PromoCodeManagement;
 using PromoCodeFactory.WebHost.Models;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PromoCodeFactory.WebHost.Controllers
@@ -65,6 +66,13 @@ namespace PromoCodeFactory.WebHost.Controllers
             try
             {
                 Customer customer = _mapper.Map<Customer>(request);
+                customer.Preferences=new List<CustomerPreference>();
+                foreach (var a in request.PreferenceIds)
+                {
+                    CustomerPreference cp=new CustomerPreference();
+                    cp.PreferenceId = a;
+                    customer.Preferences.Add(cp);
+                }
                 await _customerRepository.AddCustomerAsync(customer);
                 return Ok();
             }
@@ -83,6 +91,13 @@ namespace PromoCodeFactory.WebHost.Controllers
             try
             {
                 Customer customer = _mapper.Map<Customer>(request);
+                customer.Preferences = new List<CustomerPreference>();
+                foreach (var a in request.PreferenceIds)
+                {
+                    CustomerPreference cp = new CustomerPreference();
+                    cp.PreferenceId = a;
+                    customer.Preferences.Add(cp);
+                }
                 await _customerRepository.UpateCustomerAsync(customer);
                 return Ok();
             }
