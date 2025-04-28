@@ -10,9 +10,22 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - DOTNET_USE_POLLING_FILE_WATCHER=true
+      - ConnectionStrings__DefaultConnection=Host=db;Database=promocode_factory_db;Username=postgres;Password=docker
+    depends_on:
+      db:
+        condition: service_healthy
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    command: >
+      sh -c "
+      echo 'Waiting for database to be ready...'
+      while ! nc -z db 5432; do sleep 1; done
+      echo 'Applying database migrations...'
+      dotnet ef database update
+      echo 'Starting application...'
+      dotnet PromoCodeFactory.WebHost.dll
+      "
 
   db:
     image: postgres:15
